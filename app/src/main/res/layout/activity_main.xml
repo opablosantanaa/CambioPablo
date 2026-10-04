@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/root" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="@drawable/screen_glow">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/root" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="@drawable/screen_glow">
   <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:fillViewport="true" android:clipToPadding="false">
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="24dp">
       <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginBottom="28dp">
@@ -8,7 +8,7 @@
           <TextView style="@style/Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/app_name" />
           <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/ui_seu_dinheiro_em_outra_moeda" />
         </LinearLayout>
-        <TextView android:id="@+id/help" android:layout_width="48dp" android:layout_height="48dp" android:gravity="center" android:text="?" android:textSize="20sp" android:textColor="@color/white" android:background="@drawable/field_glass" android:contentDescription="@string/ui_sobre_as_cotacoes" android:focusable="true" android:clickable="true" />
+        <com.opablosantanaa.cambiopablo.ui.GlassTextButton android:id="@+id/help" android:layout_width="48dp" android:layout_height="48dp" android:gravity="center" android:text="?" android:textSize="20sp" android:textColor="@color/white" android:background="@drawable/field_glass" android:contentDescription="@string/ui_sobre_as_cotacoes" android:focusable="true" android:clickable="true" />
       </LinearLayout>
       <LinearLayout android:id="@+id/converterSection" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
         <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/ui_voce_recebe_em_reais" />
@@ -17,7 +17,7 @@
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="@drawable/panel_glass" android:padding="20dp" android:layout_marginTop="28dp">
           <TextView style="@style/Label" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/ui_voce_converte" />
           <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginTop="12dp">
-            <TextView android:id="@+id/sourceCurrency" android:layout_width="wrap_content" android:layout_height="52dp" android:gravity="center" android:text="@string/ui_us_usd" android:textSize="16sp" android:textColor="@color/white" android:background="@drawable/field_glass" android:clickable="true" android:focusable="true" android:contentDescription="@string/ui_selecionar_moeda_de_origem" android:paddingLeft="14dp" android:paddingRight="14dp" />
+            <com.opablosantanaa.cambiopablo.ui.GlassTextButton android:id="@+id/sourceCurrency" android:layout_width="wrap_content" android:layout_height="52dp" android:gravity="center" android:text="@string/ui_us_usd" android:textSize="16sp" android:textColor="@color/white" android:background="@drawable/field_glass" android:clickable="true" android:focusable="true" android:contentDescription="@string/ui_selecionar_moeda_de_origem" android:paddingLeft="14dp" android:paddingRight="14dp" />
 
             <EditText
                 android:id="@+id/addValue"
@@ -48,11 +48,11 @@
             </LinearLayout>
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:padding="8dp" android:text="@string/ui_destino" android:textColor="@color/mint" android:textSize="12sp" android:background="@drawable/badge_mint" />
           </LinearLayout>
-          <androidx.appcompat.widget.AppCompatButton android:id="@+id/btnConvert" android:layout_width="match_parent" android:layout_height="58dp" android:layout_marginTop="24dp" android:text="@string/ui_converter_agora" android:textAllCaps="false" android:textSize="16sp" android:textColor="@color/white" android:fontFamily="sans-serif-medium" android:background="@drawable/button_violet" android:backgroundTint="@null" android:stateListAnimator="@null" />
+          <com.opablosantanaa.cambiopablo.ui.GlassButton android:id="@+id/btnConvert" app:backgroundTint="@null" android:layout_width="match_parent" android:layout_height="58dp" android:layout_marginTop="24dp" android:text="@string/ui_converter_agora" android:textAllCaps="false" android:textSize="16sp" android:textColor="@color/white" android:fontFamily="sans-serif-medium" android:backgroundTint="@null" android:stateListAnimator="@null" />
           <TextView android:id="@+id/tvUpdatedAt" style="@style/Label" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:gravity="center" android:text="@string/ui_cotacao_comercial_taxas_nao_incluidas" android:accessibilityLiveRegion="polite" />
         </LinearLayout>
       </LinearLayout>
-      <LinearLayout android:id="@+id/marketSection" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginTop="28dp">
+      <LinearLayout android:id="@+id/marketSection" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginTop="28dp" android:visibility="gone">
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
           <TextView style="@style/Heading" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/ui_cotacoes" />
           <TextView android:id="@+id/refreshQuotes" android:layout_width="wrap_content" android:layout_height="48dp" android:gravity="center" android:text="@string/ui_atualizar" android:textSize="13sp" android:textColor="@color/muted" android:background="?attr/selectableItemBackground" android:clickable="true" android:focusable="true" android:paddingLeft="12dp" android:paddingRight="12dp" />
@@ -64,8 +64,8 @@
       <LinearLayout android:id="@+id/historySection" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
         <TextView style="@style/Heading" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/ui_suas_conversoes" android:textSize="28sp" />
         <TextView style="@style/Label" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/ui_as_ultimas_20_consultas_ficam_neste_aparelho" android:layout_marginTop="8dp" android:layout_marginBottom="24dp" />
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/clearHistory"
+        <com.opablosantanaa.cambiopablo.ui.GlassButton
+            android:id="@+id/clearHistory" app:glassAccent="false" app:backgroundTint="@null"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:layout_marginBottom="20dp"

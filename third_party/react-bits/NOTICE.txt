@@ -1,0 +1,5 @@
+Native visual adaptation of React Bits GlassSurface and the supplied SpotlightCard example.
+Original component collection: https://github.com/DavidHDev/react-bits
+Copyright (c) 2026 David Haz. Original license: LICENSE.md in this directory.
+Android Canvas renders the translucent glass appearance and pointer-following radial spotlight.
+SVG displacement and browser backdrop filters are not executed in this native adaptation.

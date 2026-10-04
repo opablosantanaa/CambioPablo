@@ -3,7 +3,7 @@
   <string name="ui_seu_dinheiro_em_outra_moeda">Seu dinheiro, em outra moeda</string>
   <string name="ui_sobre_as_cotacoes">Sobre as cotações</string>
   <string name="ui_voce_recebe_em_reais">Você recebe em reais</string>
-  <string name="ui_r">R$ —</string>
+  <string name="ui_r">R$ 0,00</string>
   <string name="ui_escolha_a_moeda_e_informe_o_valor">Escolha a moeda e informe o valor.</string>
   <string name="ui_voce_converte">Você converte</string>
   <string name="ui_us_usd">US$  USD  ▾</string>
@@ -45,7 +45,7 @@
   <string name="conversion_summary">%1$s %2$s em real brasileiro</string>
   <string name="help_body">Converta dólar, euro, libra, iene e bitcoin para reais com cotações comerciais da AwesomeAPI.\n\nO resultado é uma estimativa. Impostos, tarifas e o valor cobrado por bancos ou corretoras não estão incluídos.\n\nO horário exibido informa quando o aplicativo consultou a cotação. O histórico é salvo apenas neste aparelho.</string>
   <string name="amount_hint">0,00</string>
-  <string name="quotes_summary">1 unidade em reais • consultado às %1$s</string>
+  <string name="quotes_summary">1 unidade em reais • Consultado às %1$s</string>
   <string name="retry_restored">Toque em converter para consultar novamente.</string>
   <string name="conversion_invalid_rate">A cotação recebida é inválida. Tente novamente.</string>
   <string name="loading_api">Consultando a AwesomeAPI…</string>

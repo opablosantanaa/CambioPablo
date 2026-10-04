@@ -194,12 +194,11 @@ public class MainActivity extends AppCompatActivity {
         tab = index;
         findViewById(R.id.developerCredit).setVisibility(index == 0 ? View.VISIBLE : View.GONE);
         findViewById(R.id.converterSection).setVisibility(index == 0 ? View.VISIBLE : View.GONE);
-        findViewById(R.id.marketSection).setVisibility(index == 2 ? View.GONE : View.VISIBLE);
+        findViewById(R.id.marketSection).setVisibility(index == 1 ? View.VISIBLE : View.GONE);
         findViewById(R.id.historySection).setVisibility(index == 2 ? View.VISIBLE : View.GONE);
         int[] ids = {R.id.navConvert, R.id.navMarket, R.id.navHistory};
         for (int i = 0; i < ids.length; i++) {
             TextView nav = findViewById(ids[i]);
-            nav.setBackgroundResource(i == index ? R.drawable.button_violet : 0);
             nav.setTextColor(i == index ? WHITE : MUTED);
             nav.setSelected(i == index);
         }
