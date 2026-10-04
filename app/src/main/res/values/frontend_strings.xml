@@ -15,7 +15,7 @@
   <string name="ui_real_brasileiro">Real brasileiro</string>
   <string name="ui_destino">Destino</string>
   <string name="ui_converter_agora">Converter agora</string>
-  <string name="ui_cotacao_comercial_taxas_nao_incluidas">Cotação comercial • taxas não incluídas</string>
+  <string name="ui_cotacao_comercial_taxas_nao_incluidas">Cotação comercial • Taxas não incluídas</string>
   <string name="ui_cotacoes">Cotações</string>
   <string name="ui_atualizar">Atualizar ↻</string>
   <string name="ui_valor_de_1_unidade_em_reais">Valor de 1 unidade em reais</string>
@@ -30,7 +30,7 @@
   <string name="conversion_unavailable">Cotação indisponível. Tente novamente.</string>
   <string name="quotes_unavailable">Cotações indisponíveis. Toque em Atualizar.</string>
   <string name="loading_pair">Buscando a cotação de %1$s para BRL…</string>
-  <string name="amount_invalid">Informe um valor positivo, como 1.000,50.</string>
+  <string name="amount_invalid">Informe um valor positivo, como 0,01.</string>
   <string name="loading_conversion">Consultando cotação…</string>
   <string name="conversion_offline">Sem conexão. Verifique sua internet e tente novamente.</string>
   <string name="loading_quotes">Buscando cotações…</string>
@@ -39,7 +39,6 @@
   <string name="start_conversion">Fazer uma conversão</string>
   <string name="history_pair">%1$s %2$s → BRL</string>
   <string name="quotes_cached">Sem conexão. Exibindo a última consulta às %1$s</string>
-  <string name="choose_amount">Informe o valor em %1$s.</string>
   <string name="conversion_rate">1 %1$s = %2$s\nConsultado às %3$s</string>
   <string name="retry_conversion">Toque em Converter agora para tentar novamente.</string>
   <string name="quote_accessibility">%1$s, %2$s. Toque para converter.</string>

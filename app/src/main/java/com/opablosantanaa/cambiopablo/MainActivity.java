@@ -93,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
             return false;
         });
         amount.addTextChangedListener(new android.text.TextWatcher() {
+            private String digits = "";
             private boolean formatting;
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -102,10 +103,31 @@ public class MainActivity extends AppCompatActivity {
                 result.setText(getString(R.string.ui_r));
                 hint.setText(getString(R.string.conversion_pending));
                 updated.setText(getString(R.string.ui_cotacao_comercial_taxas_nao_incluidas));
+
+                if(count > 0 && before == 0){
+                    CharSequence added = s.subSequence(start, start + count);
+                    for (int i = 0; i < added.length(); i++) {
+                        char c = added.charAt(i);
+                        if(c == ',' || c == '.'){
+                            digits += "0";
+                        } else if (Character.isDigit(c)) {
+                            digits += c;
+                        }
+                    }
+                } else if (count == 0 && before > 0) {
+                    int deleteCount = before;
+                    if (deleteCount >= digits.length()) {
+                        digits = "";
+                    } else {
+                        digits = digits.substring(0, digits.length() - deleteCount);
+                    }
+                } else if (count > 0 && before > 0) {
+                    digits = s.toString().replaceAll("[^0-9]", "");
+                }
             }
             public void afterTextChanged(android.text.Editable s) {
                 if (formatting) return;
-                String formatted = AmountInputFormatter.format(s);
+                String formatted = AmountInputFormatter.format(digits);
                 if (!formatted.contentEquals(s)) {
                     formatting = true;
                     try {
@@ -147,7 +169,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void chooseCurrency() {
         String[] choices = new String[CODES.length];
-        for (int i = 0; i < choices.length; i++) choices[i] = CODES[i] + "   " + NAMES[i];
+        for (int i = 0; i < choices.length; i++){
+            choices[i] = CODES[i] + "   " + NAMES[i];
+        }
         new MaterialAlertDialogBuilder(this).setTitle(getString(R.string.currency_dialog))
             .setSingleChoiceItems(choices, selected, (dialog, index) -> {
                 selectCurrency(index); dialog.dismiss();
@@ -158,7 +182,6 @@ public class MainActivity extends AppCompatActivity {
         selected = index;
         updateSource();
         result.setText(getString(R.string.ui_r));
-        hint.setText(getString(R.string.choose_amount, NAMES[index].toLowerCase(PT)));
         updated.setText(getString(R.string.ui_cotacao_comercial_taxas_nao_incluidas));
         showTab(0);
     }
@@ -198,7 +221,6 @@ public class MainActivity extends AppCompatActivity {
         final BigDecimal value;
         try {
             String raw = amount.getText().toString().trim();
-            // Accept Brazilian grouping/decimal notation and keyboard decimal points.
             if (raw.contains(",")) {
                 if (!raw.matches("(?:[0-9]+|[0-9]{1,3}(?:\\.[0-9]{3})+),[0-9]{1,8}")) throw new NumberFormatException();
                 raw = raw.replace(".", "").replace(',', '.');
@@ -207,7 +229,6 @@ public class MainActivity extends AppCompatActivity {
             if (value.signum() <= 0 || value.compareTo(new BigDecimal("999999999999")) > 0) throw new NumberFormatException();
         } catch (NumberFormatException e) {
             amount.setError(getString(R.string.amount_invalid));
-            hint.setText(R.string.amount_invalid);
             amount.requestFocus();
             return;
         }
@@ -221,10 +242,14 @@ public class MainActivity extends AppCompatActivity {
         conversionCall = api.getExchangeRate(code + "-BRL");
         conversionCall.enqueue(new Callback<Map<String, Currency>>() {
             @Override public void onResponse(Call<Map<String, Currency>> call, Response<Map<String, Currency>> response) {
-                if (call.isCanceled() || isFinishing() || isDestroyed()) return;
+                if (call.isCanceled() || isFinishing() || isDestroyed()){
+                    return;
+                }
                 setLoading(false);
                 Currency currency = response.body() == null ? null : response.body().get(code + "BRL");
-                if (!response.isSuccessful() || currency == null) { conversionError(getString(R.string.conversion_unavailable)); return; }
+                if (!response.isSuccessful() || currency == null) {
+                    conversionError(getString(R.string.conversion_unavailable)); return;
+                }
                 try {
                     BigDecimal rate = new BigDecimal(currency.bid);
                     if (rate.signum() <= 0) throw new NumberFormatException();
@@ -235,7 +260,9 @@ public class MainActivity extends AppCompatActivity {
                     quotes.put(code + "BRL", currency);
                     renderQuotes();
                     saveHistory(code, value, total);
-                } catch (NumberFormatException | NullPointerException e) { conversionError(getString(R.string.conversion_invalid_rate)); }
+                } catch (NumberFormatException | NullPointerException e) {
+                    conversionError(getString(R.string.conversion_invalid_rate));
+                }
             }
             @Override public void onFailure(Call<Map<String, Currency>> call, Throwable error) {
                 if (call.isCanceled() || isFinishing() || isDestroyed()) return;
@@ -245,7 +272,9 @@ public class MainActivity extends AppCompatActivity {
         });
     }
     private void conversionError(String message) {
-        result.setText(getString(R.string.ui_r)); hint.setText(message); updated.setText(getString(R.string.retry_conversion));
+        result.setText(getString(R.string.ui_r));
+        hint.setText(message);
+        updated.setText(getString(R.string.retry_conversion));
     }
     private void fetchQuotes() {
         if (quoteCall != null) quoteCall.cancel();
@@ -336,7 +365,12 @@ public class MainActivity extends AppCompatActivity {
             } catch (JSONException | NumberFormatException ignored) { }
         }
     }
-    private TextView text(String value, int size, int color) { TextView view = new TextView(this); view.setText(value); view.setTextSize(size); view.setTextColor(color); return view; }
+    private TextView text(String value, int size, int color) {
+        TextView view = new TextView(this);
+        view.setText(value); view.setTextSize(size);
+        view.setTextColor(color);
+        return view;
+    }
     private int dp(int value) { return Math.round(value * getResources().getDisplayMetrics().density); }
     private String money(BigDecimal value) { return NumberFormat.getCurrencyInstance(PT).format(value); }
     private String rateMoney(BigDecimal value) { NumberFormat format = NumberFormat.getCurrencyInstance(PT); format.setMaximumFractionDigits(4); return format.format(value); }
