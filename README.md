@@ -12,7 +12,7 @@ O aplicativo está disponível para celulares com **Android 6.0 ou superior**.
 
 ### Baixar o aplicativo
 
-**[📥 Baixar cambioPablo.apk](apk/cambioPablo.apk?raw=true)**
+**[📥 Baixar cambioPablo.apk](https://github.com/opablosantanaa/CambioPablo/blob/main/apk/cambioPablo.apk?raw=true)**
 
 1. Baixe o APK pelo link acima no celular.
 2. Abra o arquivo `cambioPablo.apk`.
