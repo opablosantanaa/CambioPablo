@@ -1,1 +1,7 @@
-<resources><string name="app_name">Câmbio Pablo</string></resources>
+<resources>
+    <string name="app_name">Câmbio Pablo</string>
+    <string name="currency_option">%1$s   %2$s</string>
+    <string name="tab_convert">Converter</string>
+    <string name="tab_quotes">Cotações</string>
+    <string name="tab_history">Histórico</string>
+</resources>

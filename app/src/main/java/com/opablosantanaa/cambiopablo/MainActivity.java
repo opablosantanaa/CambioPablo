@@ -1,7 +1,7 @@
 package com.opablosantanaa.cambiopablo;
 
 import android.os.Bundle;
-import android.graphics.Color;
+import androidx.core.content.ContextCompat;
 import android.graphics.Typeface;
 import android.view.Gravity;
 import android.view.View;
@@ -15,6 +15,9 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.widget.TextViewCompat;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.opablosantanaa.cambiopablo.ui.DarkVeilView;
+import com.opablosantanaa.cambiopablo.ui.GlideCurrencyPicker;
+import com.opablosantanaa.cambiopablo.ui.JellyTabsLayout;
 import com.opablosantanaa.cambiopablo.api.ApiService;
 import com.opablosantanaa.cambiopablo.api.Currency;
 import com.opablosantanaa.cambiopablo.api.RetrofitClient;
@@ -38,11 +41,14 @@ public class MainActivity extends AppCompatActivity {
     private static final String[] NAMES = {"Dólar americano", "Euro", "Libra esterlina", "Iene japonês", "Bitcoin"};
     private static final String[] SYMBOLS = {"US$", "€", "£", "¥", "₿"};
     private static final Locale PT = new Locale("pt", "BR");
-    private static final int WHITE = Color.rgb(246, 248, 255), MUTED = Color.rgb(169, 183, 211);
+    private int foreground, muted;
+    private DarkVeilView darkVeil;
     private EditText amount;
     private TextView result, hint, updated, source, sourceName, marketStatus;
     private Button convert;
     private LinearLayout quoteList, historyList;
+    private JellyTabsLayout jellyTabs;
+    private final GlideCurrencyPicker currencyPicker = new GlideCurrencyPicker();
     private ApiService api;
     private final Map<String, Currency> quotes = new HashMap<>();
     private Call<Map<String, Currency>> quoteCall, conversionCall;
@@ -54,6 +60,9 @@ public class MainActivity extends AppCompatActivity {
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
         setContentView(R.layout.activity_main);
+        darkVeil = findViewById(R.id.darkVeil);
+        foreground = ContextCompat.getColor(this, R.color.white);
+        muted = ContextCompat.getColor(this, R.color.muted);
         View root = findViewById(R.id.root);
         ViewCompat.setOnApplyWindowInsetsListener(root, (v, insets) -> {
             androidx.core.graphics.Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.ime());
@@ -79,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
         }
         marketStatus = findViewById(R.id.marketStatus);
         convert = findViewById(R.id.btnConvert);
+        jellyTabs = findViewById(R.id.jellyTabs);
         quoteList = findViewById(R.id.quoteList);
         historyList = findViewById(R.id.historyList);
         TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(result, 22, 42, 1, android.util.TypedValue.COMPLEX_UNIT_SP);
@@ -168,14 +178,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void chooseCurrency() {
-        String[] choices = new String[CODES.length];
-        for (int i = 0; i < choices.length; i++){
-            choices[i] = CODES[i] + "   " + NAMES[i];
-        }
-        new MaterialAlertDialogBuilder(this).setTitle(getString(R.string.currency_dialog))
-            .setSingleChoiceItems(choices, selected, (dialog, index) -> {
-                selectCurrency(index); dialog.dismiss();
-            }).setNegativeButton(getString(R.string.cancel), null).show();
+        ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE))
+                .hideSoftInputFromWindow(amount.getWindowToken(), 0);
+        amount.clearFocus();
+        source.post(() -> {
+            if (!isFinishing() && !isDestroyed() && source.hasWindowFocus()) {
+                currencyPicker.show(source, CODES, NAMES, selected, this::selectCurrency);
+            }
+        });
     }
     private void selectCurrency(int index) {
         cancelConversion();
@@ -199,9 +209,10 @@ public class MainActivity extends AppCompatActivity {
         int[] ids = {R.id.navConvert, R.id.navMarket, R.id.navHistory};
         for (int i = 0; i < ids.length; i++) {
             TextView nav = findViewById(ids[i]);
-            nav.setTextColor(i == index ? WHITE : MUTED);
+            nav.setTextColor(i == index ? foreground : muted);
             nav.setSelected(i == index);
         }
+        jellyTabs.setSelectedIndex(index);
         if (index == 2) renderHistory();
         ((android.widget.ScrollView) findViewById(R.id.converterSection).getParent().getParent()).post(() -> ((android.widget.ScrollView) findViewById(R.id.converterSection).getParent().getParent()).scrollTo(0, 0));
     }
@@ -307,16 +318,16 @@ public class MainActivity extends AppCompatActivity {
             LinearLayout row = new LinearLayout(this);
             row.setGravity(Gravity.CENTER_VERTICAL);
             row.setPadding(dp(16), dp(16), dp(16), dp(16));
-            row.setBackgroundResource(R.drawable.panel_glass);
+            row.setBackgroundResource(R.drawable.panel_surface);
             LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(-1, -2); rowParams.bottomMargin = dp(10);
             quoteList.addView(row, rowParams);
-            TextView symbol = text(SYMBOLS[i], 18, WHITE);
-            symbol.setGravity(Gravity.CENTER); symbol.setBackgroundResource(R.drawable.circle_glass);
+            TextView symbol = text(SYMBOLS[i], 18, foreground);
+            symbol.setGravity(Gravity.CENTER); symbol.setBackgroundResource(R.drawable.circle_surface);
             row.addView(symbol, new LinearLayout.LayoutParams(dp(44), dp(44)));
             LinearLayout name = new LinearLayout(this); name.setOrientation(LinearLayout.VERTICAL); name.setPadding(dp(12), 0, dp(8), 0);
-            name.addView(text(CODES[i], 16, WHITE)); name.addView(text(NAMES[i], 11, MUTED));
+            name.addView(text(CODES[i], 16, foreground)); name.addView(text(NAMES[i], 11, muted));
             row.addView(name, new LinearLayout.LayoutParams(0, -2, 1));
-            TextView priceView = text(price, 16, WHITE);
+            TextView priceView = text(price, 16, foreground);
             priceView.setTypeface(null, Typeface.BOLD);
             row.addView(priceView);
             row.setFocusable(true); row.setClickable(true);
@@ -346,7 +357,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.clearHistory).setVisibility(history.length() == 0 ? View.GONE : View.VISIBLE);
         historyList.removeAllViews();
         if (history.length() == 0) {
-            TextView empty = text(getString(R.string.empty_history), 16, MUTED);
+            TextView empty = text(getString(R.string.empty_history), 16, muted);
             empty.setLineSpacing(dp(6), 1f); historyList.addView(empty);
             Button start = (Button) getLayoutInflater().inflate(R.layout.history_empty_action, historyList, false);
             start.setOnClickListener(v -> showTab(0)); historyList.addView(start); return;
@@ -355,11 +366,11 @@ public class MainActivity extends AppCompatActivity {
             try {
                 JSONObject item = history.getJSONObject(i);
                 LinearLayout row = new LinearLayout(this); row.setOrientation(LinearLayout.VERTICAL);
-                row.setBackgroundResource(R.drawable.panel_glass); row.setPadding(dp(20), dp(18), dp(20), dp(18));
+                row.setBackgroundResource(R.drawable.panel_surface); row.setPadding(dp(20), dp(18), dp(20), dp(18));
                 LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(-1, -2); params.bottomMargin = dp(12);
-                row.addView(text(getString(R.string.history_pair, decimal(new BigDecimal(item.getString("value"))), item.getString("code")), 14, MUTED));
-                row.addView(text(money(new BigDecimal(item.getString("total"))), 26, WHITE));
-                row.addView(text(new SimpleDateFormat("dd/MM/yyyy 'às' HH:mm", PT).format(new Date(item.getLong("time"))), 12, MUTED));
+                row.addView(text(getString(R.string.history_pair, decimal(new BigDecimal(item.getString("value"))), item.getString("code")), 14, muted));
+                row.addView(text(money(new BigDecimal(item.getString("total"))), 26, foreground));
+                row.addView(text(new SimpleDateFormat("dd/MM/yyyy 'às' HH:mm", PT).format(new Date(item.getLong("time"))), 12, muted));
                 historyList.addView(row, params);
             } catch (JSONException | NumberFormatException ignored) { }
         }
@@ -380,6 +391,18 @@ public class MainActivity extends AppCompatActivity {
         state.putString("amount", amount.getText().toString()); state.putString("result", result.getText().toString());
         state.putString("hint", loading ? getString(R.string.retry_restored) : hint.getText().toString());
         state.putString("updated", loading ? getString(R.string.ui_cotacao_comercial_taxas_nao_incluidas) : updated.getText().toString());
+    }
+    @Override protected void onResume() {
+        super.onResume();
+        darkVeil.setRunning(true);
+    }
+    @Override protected void onPause() {
+        darkVeil.setRunning(false);
+        super.onPause();
+    }
+    @Override protected void onStop() {
+        currencyPicker.dismiss();
+        super.onStop();
     }
     @Override protected void onDestroy() {
         if (quoteCall != null) quoteCall.cancel(); if (conversionCall != null) conversionCall.cancel(); super.onDestroy();

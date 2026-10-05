@@ -1,6 +1,13 @@
 <resources>
-    <color name="ink">#050B20</color><color name="panel">#141E38</color>
-    <color name="white">#F6F8FF</color><color name="muted">#A9B7D3</color>
-    <color name="violet">#7945FF</color><color name="mint">#57E9BB</color>
-    
+    <color name="background">#0B1416</color>
+    <color name="primary">#00665E</color>
+    <color name="accent">#D6B840</color>
+    <color name="panel">#122124</color>
+    <color name="white">#F2F6F3</color>
+    <color name="muted">#A4B5AE</color>
+    <color name="surface">#1B3032</color>
+    <color name="border">#36504F</color>
+    <color name="menu_highlight">#164540</color>
+    <color name="accent_soft">#302C19</color>
+    <color name="ripple">#33D6B840</color>
 </resources>

@@ -1,0 +1,6 @@
+<ripple xmlns:android="http://schemas.android.com/apk/res/android" android:color="@color/ripple">
+  <item><selector>
+    <item android:state_focused="true"><shape><solid android:color="@color/panel"/><corners android:radius="24dp"/><stroke android:width="2dp" android:color="@color/accent"/></shape></item>
+    <item><shape><solid android:color="@color/panel"/><corners android:radius="24dp"/></shape></item>
+  </selector></item>
+</ripple>

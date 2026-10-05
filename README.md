@@ -30,7 +30,7 @@ Não é necessário instalar Android Studio ou conectar o celular a um computado
 - **Entrada de Valores**: máscara monetária com duas casas decimais, deslocando os dígitos conforme a digitação: `0,01 → 0,10 → 1,05`.
 - **Histórico Local**: armazenamento das últimas 20 conversões no aparelho, com moeda de origem, valor convertido, resultado e horário da consulta.
 - **Exclusão do Histórico**: remoção dos registros mediante confirmação.
-- **Interface**: tema escuro, navegação entre Converter, Cotações e Histórico, além de vidro e iluminação em botões específicos.
+- **Interface**: tema escuro com paleta verde e dourada e fundo animado DarkVeil, navegação entre Converter, Cotações e Histórico, com ícones nas abas, nome visível na aba ativa, seleção elástica e destaque deslizante na escolha da moeda.
 - **Tratamento de Erros**: validação de valores e mensagens para falhas de conexão ou cotações indisponíveis.
 
 ---
@@ -48,6 +48,7 @@ Não é necessário instalar Android Studio ou conectar o celular a um computado
 | Material Components | 1.10.0 | Componentes, diálogos e tema |
 | Retrofit | 2.9.0 | Cliente HTTP para consulta de cotações |
 | Gson Converter | 2.9.0 | Conversão das respostas JSON |
+| OpenGL ES | 2.0 | Fundo procedural animado com shader GLSL |
 | SharedPreferences + JSON | — | Persistência do histórico local |
 | JUnit | 4.13.2 | Testes unitários |
 | Espresso | 3.7.0 | Infraestrutura de testes instrumentados |
@@ -117,9 +118,12 @@ app/
 │   │   │   ├── Currency.java            # Modelo da resposta de cotação
 │   │   │   └── RetrofitClient.java      # Configuração do cliente HTTP
 │   │   └── ui/
-│   │       ├── GlassButton.java         # Botões com vidro e iluminação
-│   │       ├── GlassTextButton.java     # Controles auxiliares com vidro
-│   │       └── GlassSurfaceDrawable.java # Desenho do material e da luz
+│   │       ├── JellyTabsLayout.java     # Seleção e expansão elástica das abas
+│   │       ├── JellyTabView.java        # Ícone e nome da aba ativa
+│   │       ├── DarkVeilView.java        # Camada visual do fundo
+│   │       ├── DarkVeilRenderer.java    # Shader nativo e ciclo de renderização
+│   │       ├── GlideCurrencyPicker.java # Menu de moedas com destaque deslizante
+│   │       └── MotionPolicy.java        # Preferência de animações do Android
 │   └── res/
 │       ├── layout/                     # Telas e botão do histórico vazio
 │       ├── drawable/                   # Fundos, ícones e estados visuais
