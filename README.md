@@ -30,8 +30,37 @@ Não é necessário instalar Android Studio ou conectar o celular a um computado
 - **Entrada de Valores**: máscara monetária com duas casas decimais, deslocando os dígitos conforme a digitação: `0,01 → 0,10 → 1,05`.
 - **Histórico Local**: armazenamento das últimas 20 conversões no aparelho, com moeda de origem, valor convertido, resultado e horário da consulta.
 - **Exclusão do Histórico**: remoção dos registros mediante confirmação.
-- **Interface**: tema escuro com paleta verde e dourada e fundo animado DarkVeil, navegação entre Converter, Cotações e Histórico, com ícones nas abas, nome visível na aba ativa, seleção elástica e destaque deslizante na escolha da moeda.
+- **Interface**: tema escuro com paleta verde e dourada, cartões sólidos e fundo animado DarkVeil.
+- **Navegação entre Abas**: seletor em formato de cápsula, com ícones de fácil visualização e nome exibido somente na aba ativa. A seleção usa expansão e retorno elástico inspirados em JellyRadio.
+- **Seleção de Moeda**: menu junto ao seletor, com destaque deslizante inspirado em GlideSelect. Permite escolher por toque, arraste ou teclado.
 - **Tratamento de Erros**: validação de valores e mensagens para falhas de conexão ou cotações indisponíveis.
+
+---
+
+## 🎨 Interface e Animações
+
+A interface foi implementada com **Java, layouts XML e componentes nativos do Android**. Os efeitos JellyRadio, GlideSelect e DarkVeil foram adaptados para essa estrutura nativa.
+
+### Paleta de cores
+
+| Cor | Valor | Aplicação |
+|---|---|---|
+| Fundo | `#0B1416` | Base escura da interface |
+| Principal | `#00665E` | Botões de ação e aba selecionada |
+| Destaque | `#D6B840` | Indicadores de foco e identificação da moeda de destino |
+
+As cores estão centralizadas em `app/src/main/res/values/colors.xml`. Os cartões utilizam superfícies sólidas em tons derivados do verde, preservando a legibilidade sobre o fundo animado.
+
+### Navegação e escolha de moeda
+
+- **Abas**: Converter, Cotações e Histórico permanecem no rodapé. Cada aba tem um ícone vetorial de 28 dp; ao selecioná-la, o espaço se expande e o nome aparece ao lado do ícone. O nome também está disponível para leitores de tela e no toque prolongado.
+- **Moedas**: o menu apresenta o código e o nome de cada moeda. O destaque acompanha o toque, o arraste e a navegação por teclado; a escolha é confirmada ao clicar ou soltar sobre uma opção. Tocar fora fecha o menu.
+
+### Fundo DarkVeil
+
+O fundo usa **OpenGL ES 2.0 e shaders GLSL** para criar formas suaves em movimento, remapeadas para a paleta do aplicativo. A renderização ocorre em uma thread separada da interface, com cadência desejada de aproximadamente 30 quadros por segundo e resolução reduzida para limitar o custo gráfico.
+
+O efeito é pausado quando o aplicativo deixa de estar ativo ou sua janela não está visível. Com as animações do Android desativadas, ou em economia de bateria, o fundo fica estático. Os efeitos de seleção também respeitam a configuração de animações do sistema.
 
 ---
 
@@ -110,6 +139,9 @@ A atividade inicial é `com.opablosantanaa.cambiopablo.MainActivity`.
 app/
 ├── src/main/
 │   ├── AndroidManifest.xml
+│   ├── assets/
+│   │   ├── darkveil.vert               # Posição dos vértices do fundo
+│   │   └── darkveil.frag               # Padrão procedural e mistura de cores
 │   ├── java/com/opablosantanaa/cambiopablo/
 │   │   ├── MainActivity.java            # Navegação, conversão, cotações e histórico
 │   │   ├── AmountInputFormatter.java    # Formatação da entrada monetária
@@ -127,7 +159,7 @@ app/
 │   └── res/
 │       ├── layout/                     # Telas e botão do histórico vazio
 │       ├── drawable/                   # Fundos, ícones e estados visuais
-│       └── values/                     # Textos, cores, estilos e atributos
+│       └── values/                     # Textos, cores e estilos
 ├── src/test/                           # Testes unitários
 ├── src/androidTest/                    # Testes instrumentados
 └── build.gradle.kts                    # Configuração do módulo Android
