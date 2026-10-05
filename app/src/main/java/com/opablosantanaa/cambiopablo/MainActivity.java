@@ -394,7 +394,7 @@ public class MainActivity extends AppCompatActivity {
     }
     @Override protected void onResume() {
         super.onResume();
-        darkVeil.setRunning(true);
+        darkVeil.resumeRendering();
     }
     @Override protected void onPause() {
         darkVeil.setRunning(false);

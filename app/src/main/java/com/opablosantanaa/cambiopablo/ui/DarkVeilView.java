@@ -23,6 +23,14 @@ public final class DarkVeilView extends TextureView implements TextureView.Surfa
         updateRunning();
     }
 
+    public void resumeRendering() {
+        // The visible view can retain its size while Android replaces the backing buffer.
+        if (renderer != null && getWidth() > 0 && getHeight() > 0) {
+            renderer.resize(getWidth(), getHeight());
+        }
+        setRunning(true);
+    }
+
     private void updateRunning() {
         if (renderer != null) renderer.setRunning(hostActive && windowVisible);
     }
@@ -30,6 +38,9 @@ public final class DarkVeilView extends TextureView implements TextureView.Surfa
     @Override protected void onWindowVisibilityChanged(int visibility) {
         super.onWindowVisibilityChanged(visibility);
         windowVisible = visibility == View.VISIBLE;
+        if (windowVisible && renderer != null && getWidth() > 0 && getHeight() > 0) {
+            renderer.resize(getWidth(), getHeight());
+        }
         updateRunning();
     }
 

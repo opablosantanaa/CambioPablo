@@ -31,7 +31,10 @@ final class DarkVeilRenderer extends Thread {
     private volatile boolean alive = true;
     private volatile boolean running;
     private volatile int requestedWidth, requestedHeight;
+    private long surfaceRevision;
+    private final int[] surfaceSize = new int[2];
     private int width, height, program;
+    private EGLConfig windowConfig;
     private EGLDisplay display = EGL14.EGL_NO_DISPLAY;
     private EGLContext eglContext = EGL14.EGL_NO_CONTEXT;
     private EGLSurface eglSurface = EGL14.EGL_NO_SURFACE;
@@ -46,14 +49,21 @@ final class DarkVeilRenderer extends Thread {
     void resize(int width, int height) {
         // Cap the long edge: the soft background does not need display-resolution shading.
         float scale = Math.min(1f, 640f / Math.max(1, Math.max(width, height)));
-        requestedWidth = Math.max(1, Math.round(width * scale));
-        requestedHeight = Math.max(1, Math.round(height * scale));
-        synchronized (stateLock) { stateLock.notifyAll(); }
+        synchronized (stateLock) {
+            requestedWidth = Math.max(1, Math.round(width * scale));
+            requestedHeight = Math.max(1, Math.round(height * scale));
+            // TextureView can reset its buffer even when the view dimensions did not change.
+            surfaceRevision++;
+            stateLock.notifyAll();
+        }
     }
 
     void setRunning(boolean value) {
-        running = value;
-        synchronized (stateLock) { stateLock.notifyAll(); }
+        synchronized (stateLock) {
+            if (value && !running) surfaceRevision++;
+            running = value;
+            stateLock.notifyAll();
+        }
     }
 
     void shutdown() {
@@ -79,12 +89,18 @@ final class DarkVeilRenderer extends Thread {
             PowerManager power = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
             boolean animate = true, wasAnimating = true, drawn = false;
             long policyCheck = 0, previous = SystemClock.uptimeMillis();
+            long appliedRevision = -1;
             float time = 0;
             while (alive) {
+                long revision;
+                int targetWidth, targetHeight;
                 synchronized (stateLock) {
                     while (alive && !running) {
                         stateLock.wait(); previous = SystemClock.uptimeMillis();
                     }
+                    revision = surfaceRevision;
+                    targetWidth = requestedWidth;
+                    targetHeight = requestedHeight;
                 }
                 if (!alive) break;
                 long frameStart = SystemClock.uptimeMillis();
@@ -92,16 +108,15 @@ final class DarkVeilRenderer extends Thread {
                     animate = MotionPolicy.enabled(context) && (power == null || !power.isPowerSaveMode());
                     policyCheck = frameStart + 1000;
                 }
-                boolean resized = width != requestedWidth || height != requestedHeight;
-                if (resized) {
-                    width = requestedWidth; height = requestedHeight;
-                    texture.setDefaultBufferSize(width, height);
-                    GLES20.glViewport(0, 0, width, height);
-                    GLES20.glUniform2f(resolution, width, height);
+                boolean refreshed = appliedRevision != revision;
+                if (refreshed) {
+                    recreateWindowSurface(targetWidth, targetHeight);
+                    appliedRevision = revision;
                 }
+                boolean resized = updateViewport(resolution);
                 if (animate) time += Math.min(.1f, (frameStart - previous) / 1000f) * .5f;
                 previous = frameStart;
-                if (!drawn || resized || animate || animate != wasAnimating) {
+                if (!drawn || refreshed || resized || animate || animate != wasAnimating) {
                     GLES20.glUniform1f(timeUniform, animate ? time : 0);
                     GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 3);
                     if (!EGL14.eglSwapBuffers(display, eglSurface)) throw new IllegalStateException("EGL swap failed");
@@ -142,11 +157,36 @@ final class DarkVeilRenderer extends Thread {
             throw new IllegalStateException("EGL configuration unavailable");
         eglContext = EGL14.eglCreateContext(display, config[0], EGL14.EGL_NO_CONTEXT,
                 new int[]{EGL14.EGL_CONTEXT_CLIENT_VERSION, 2, EGL14.EGL_NONE}, 0);
-        texture.setDefaultBufferSize(requestedWidth, requestedHeight);
-        eglSurface = EGL14.eglCreateWindowSurface(display, config[0], texture, new int[]{EGL14.EGL_NONE}, 0);
+        windowConfig = config[0];
+        recreateWindowSurface(requestedWidth, requestedHeight);
+    }
+
+    private void recreateWindowSurface(int bufferWidth, int bufferHeight) {
+        // Keep the context/program, replacing only the EGL window so buffer sizing takes effect.
+        if (eglSurface != EGL14.EGL_NO_SURFACE) {
+            EGL14.eglMakeCurrent(display, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_CONTEXT);
+            EGL14.eglDestroySurface(display, eglSurface);
+            eglSurface = EGL14.EGL_NO_SURFACE;
+        }
+        texture.setDefaultBufferSize(bufferWidth, bufferHeight);
+        eglSurface = EGL14.eglCreateWindowSurface(display, windowConfig, texture, new int[]{EGL14.EGL_NONE}, 0);
         if (eglContext == EGL14.EGL_NO_CONTEXT || eglSurface == EGL14.EGL_NO_SURFACE
                 || !EGL14.eglMakeCurrent(display, eglSurface, eglSurface, eglContext))
             throw new IllegalStateException("EGL surface unavailable");
+    }
+
+    private boolean updateViewport(int resolution) {
+        // Use the actual drawing buffer, not a cached assumption about its dimensions.
+        if (!EGL14.eglQuerySurface(display, eglSurface, EGL14.EGL_WIDTH, surfaceSize, 0)
+                || !EGL14.eglQuerySurface(display, eglSurface, EGL14.EGL_HEIGHT, surfaceSize, 1))
+            throw new IllegalStateException("EGL dimensions unavailable");
+        int actualWidth = Math.max(1, surfaceSize[0]);
+        int actualHeight = Math.max(1, surfaceSize[1]);
+        boolean changed = width != actualWidth || height != actualHeight;
+        width = actualWidth; height = actualHeight;
+        GLES20.glViewport(0, 0, width, height);
+        GLES20.glUniform2f(resolution, width, height);
+        return changed;
     }
 
     private String readAsset(String name) throws IOException {
